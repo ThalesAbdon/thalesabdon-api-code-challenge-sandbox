@@ -18,11 +18,17 @@ app.post('/generate', async (req, res) => {
     // Add a 8-seconds delay before calling the callback
     await delay(8000) // FIXME: Change to be random between 4-8 seconds
 
+    const images = [
+     `https://fake-ai-images.com/${generationId}/image-1.png`,
+     `https://fake-ai-images.com/${generationId}/image-2.png`,
+    ]
+
     // Trigger Lambda callback
     try {
       await axios.post(LAMBDA_CALLBACK_URL, {
         prompt,
         generationId,
+        images,
         timestamp: new Date().toISOString(),
       })
       console.log('Successfully triggered Lambda callback')
