@@ -7,6 +7,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+
 model generations {
   id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   generationId String      @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -19,9 +21,18 @@ model generations {
   imageHeight  Int
   imageWidth   Int
   prompt       String      @db.VarChar(1500)
+  status GenerationStatus @default(PENDING)
+  images String[] @default([])
+
 }
 
 enum core_models {
   SD
   SDXL
+}
+
+enum GenerationStatus {
+  PENDING
+  COMPLETE
+  FAILED
 }

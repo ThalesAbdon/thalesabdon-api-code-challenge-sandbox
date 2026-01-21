@@ -21,6 +21,8 @@ export const callback = async (event: APIGatewayProxyEvent): Promise<APIGatewayP
       },
       data: {
         updatedAt: new Date(),
+        status: 'COMPLETE',
+        images: data.images,
       },
     })
 

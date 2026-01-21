@@ -1,4 +1,4 @@
-import { Injectable, OnModuleDestroy } from '@nestjs/common'
+import { Injectable, NotFoundException, OnModuleDestroy } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client'
 import axios from 'axios'
 
@@ -44,6 +44,7 @@ export class AiService implements OnModuleDestroy {
         where: { generationId },
         data: {
           updatedAt: new Date(),
+          status: 'FAILED',
         },
       })
       throw error // Re-throw the error to be caught by the caller
@@ -58,6 +59,7 @@ export class AiService implements OnModuleDestroy {
           imageHeight: 1024,
           imageWidth: 1024,
           coreModel: 'SDXL',
+          status: 'PENDING',
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -82,11 +84,36 @@ export class AiService implements OnModuleDestroy {
           })
         }
       })
-
+      
       // Return the generationId immediately
       return { generationId }
     } catch (error) {
       throw new Error(`Failed to initiate image generation: ${error}`)
     }
   }
+
+  async getGenerationById(generationId: string) {
+  const generation = await this.prisma.generations.findUnique({
+    where: { generationId },
+  })
+
+  if (!generation) {
+    throw new NotFoundException('Generation not found')
+  }
+  
+  if (generation.status === 'PENDING' || generation.status === 'FAILED') {
+    return {
+      generationId,
+      status: generation.status,
+      prompt: generation.prompt,
+    }
+  }
+
+  return {
+    generationId,
+    status: generation.status,
+    prompt: generation.prompt,
+    images: generation.images ?? [],
+  }
+}
 }

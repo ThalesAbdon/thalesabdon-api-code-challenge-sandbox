@@ -14,3 +14,6 @@ services/nestjs/dist
 
 services/mock-ai-server/*.tsbuildinfo
 services/mock-ai-server/dist
+
+prisma/migrations/
+prisma/migration_lock.toml

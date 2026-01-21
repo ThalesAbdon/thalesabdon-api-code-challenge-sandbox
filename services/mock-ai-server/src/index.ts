@@ -45,7 +45,11 @@ app.post('/generate', async (req, res) => {
   }
 })
 
-const PORT = process.env.PORT || 3001
-app.listen(PORT, () => {
-  console.log(`Mock AI server running on port ${PORT}`)
-})
+export { app };
+
+if (process.env.NODE_ENV !== 'test') {
+  const PORT = process.env.PORT || 3001;
+  app.listen(PORT, () => {
+    console.log(`Mock AI server running on port ${PORT}`);
+  });
+}
