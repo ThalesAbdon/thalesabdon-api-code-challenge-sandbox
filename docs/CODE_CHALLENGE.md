@@ -124,8 +124,17 @@ Swagger UI is available when running the NestJS service.
 
 ---
 
-## ▶️ How to Run
+## Evidence (Tests & API Responses)
+<img width="1545" height="745" alt="image" src="https://github.com/user-attachments/assets/5b9402ca-6a3a-4b1c-8155-8a8604e368cc" />
+<img width="1919" height="255" alt="image" src="https://github.com/user-attachments/assets/2fc649c3-14b5-4df5-a786-64d90fc89d31" />
+<img width="1548" height="791" alt="image" src="https://github.com/user-attachments/assets/b3fefacf-a298-4971-9b98-9f28e4ca128a" />
+<img width="1552" height="885" alt="image" src="https://github.com/user-attachments/assets/4f9e6cdf-7583-4cff-b720-3d72604931c8" />
+<img width="1914" height="287" alt="image" src="https://github.com/user-attachments/assets/f7ce66eb-40a4-41f3-9fb6-ed91e884cdf5" />
 
-### Install dependencies
-```bash
-npm install
+
+
+
+
+
+
+
