@@ -11,10 +11,9 @@ functions:
   callback:
     handler: handlers/callback.callback
     events:
-      - http:
-          path: callback
+      - httpApi:
+          path: /callback
           method: post
-          cors: true
     environment:
       DATABASE_URL: ${env:DATABASE_URL, 'postgresql://postgres:postgres@localhost:5433/ai_generation'}
 
@@ -35,6 +34,6 @@ custom:
   offline:
     httpPort: 4000
     lambdaPort: 3004
-    host: 'localhost'
+    host: 0.0.0.0
     noPrependStageInUrl: true
     disableCookieValidation: true
