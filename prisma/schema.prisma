@@ -23,6 +23,8 @@ model generations {
   prompt       String      @db.VarChar(1500)
   status GenerationStatus @default(PENDING)
   images String[] @default([])
+  retryCount Int     @default(0)
+  lastError  String?
 
 }
 
