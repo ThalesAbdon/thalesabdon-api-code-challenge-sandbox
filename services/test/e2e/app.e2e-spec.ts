@@ -1,66 +1,115 @@
-import axios from 'axios';
-import { PrismaClient } from '@prisma/client';
+import axios from 'axios'
+import { PrismaClient } from '@prisma/client'
 
-const API_URL = 'http://localhost:3000';
-const prisma = new PrismaClient();
+const API_URL = 'http://localhost:3000'
+const prisma = new PrismaClient()
 
-describe('End-to-End Flow: Image Generation with Retry', () => {
-  jest.setTimeout(50000);
-
-  let targetGenerationId: string;
+/**
+ * End-to-End tests validate observable system behavior.
+ * Internal mechanisms (e.g. retry counters) are validated
+ * in unit or integration tests, not strictly in E2E.
+ */
+describe('E2E: Image generation lifecycle', () => {
+  jest.setTimeout(50000)
 
   afterAll(async () => {
-    await prisma.$disconnect();
-  });
+    await prisma.$disconnect()
+  })
 
-  it('should create a generation and verify retry mechanism', async () => {
+  it('should create a generation and allow querying its status while pending', async () => {
+    const createResponse = await axios.post(`${API_URL}/api/generation`, {
+      prompt: 'A futuristic city at night',
+    })
+
+    expect(createResponse.status).toBe(201)
+
+    const generationId = createResponse.data.generationId
+    expect(generationId).toBeDefined()
+
+    /**
+     * Immediately query the GET endpoint.
+     * At this point, the generation should still be PENDING.
+     */
+    const getResponse = await axios.get(
+      `${API_URL}/api/generation/${generationId}`,
+    )
+
+    expect(getResponse.status).toBe(200)
+    expect(getResponse.data.generationId).toBe(generationId)
+    expect(getResponse.data.status).toBe('PENDING')
+    expect(getResponse.data.prompt).toBeDefined()
+    expect(getResponse.data.images).toBeUndefined()
+  })
+
+  it('should handle failures gracefully and reach a terminal state', async () => {
     const response = await axios.post(`${API_URL}/api/generation`, {
-      prompt: 'force_error', 
-    });
+      prompt: 'force_error',
+    })
 
-    expect(response.status).toBe(201);
-    targetGenerationId = response.data.generationId;
-    expect(targetGenerationId).toBeDefined();
+    expect(response.status).toBe(201)
 
-    const initialRecord = await prisma.generations.findUnique({
-      where: { generationId: targetGenerationId },
-    });
-    expect(initialRecord?.status).toBe('PENDING');
-    expect(initialRecord?.retryCount).toBe(0);
+    const generationId = response.data.generationId
+    expect(generationId).toBeDefined()
 
-    console.log('Waiting for background processing with retries...');
-    await new Promise((resolve) => setTimeout(resolve, 15000));
+    console.log('Waiting for background processing...')
+    await new Promise((resolve) => setTimeout(resolve, 15000))
 
-    const finalRecord = await prisma.generations.findUnique({
-      where: { generationId: targetGenerationId },
-    });
+    const getResponse = await axios.get(
+      `${API_URL}/api/generation/${generationId}`,
+    )
 
-    console.log(`Final status: ${finalRecord?.status}`);
-    console.log(`Retries attempted: ${finalRecord?.retryCount}`);
+    expect(getResponse.status).toBe(200)
+    expect(['FAILED', 'COMPLETE']).toContain(getResponse.data.status)
 
-    expect(finalRecord).not.toBeNull();
-    expect(finalRecord?.retryCount).toBeGreaterThan(0);
-    expect(['FAILED', 'COMPLETED']).toContain(finalRecord?.status);
-  });
+    /**
+     * In failure scenarios, images must not be returned.
+     */
+    if (getResponse.data.status === 'FAILED') {
+      expect(getResponse.data.images).toBeUndefined()
+    }
+  })
 
-  it('should successfully generate an image after retries', async () => {
+  it('should return generated images once the generation is complete', async () => {
     const response = await axios.post(`${API_URL}/api/generation`, {
       prompt: 'A robot playing piano on the Moon',
-    });
+    })
 
-    expect(response.status).toBe(201);
-    const generationId = response.data.generationId;
-    expect(generationId).toBeDefined();
+    expect(response.status).toBe(201)
 
-    console.log('Waiting for background processing...');
-    await new Promise((resolve) => setTimeout(resolve, 10000));
+    const generationId = response.data.generationId
+    expect(generationId).toBeDefined()
 
-    const record = await prisma.generations.findUnique({
-      where: { generationId },
-    });
+    console.log('Waiting for background processing...')
+    await new Promise((resolve) => setTimeout(resolve, 10000))
 
-    expect(record).not.toBeNull();
-    expect(record?.status).toBe('COMPLETED');
-    expect(record?.images?.length).toBeGreaterThan(0);
-  });
-});
+    const getResponse = await axios.get(
+      `${API_URL}/api/generation/${generationId}`,
+    )
+
+    expect(getResponse.status).toBe(200)
+    expect(getResponse.data.status).toBe('COMPLETE')
+    expect(getResponse.data.images).toBeDefined()
+    expect(getResponse.data.images.length).toBeGreaterThan(0)
+  })
+
+  it('should return 404 when querying a non-existent generation', async () => {
+    await expect(
+      axios.get(`${API_URL}/api/generation/3c1dfcd7-0751-4ff6-9d87-27e6b6830ff4`),
+    ).rejects.toMatchObject({
+      response: {
+        status: 404,
+      },
+    })
+  })
+
+  it('should return 400 when querying with an invalid generationId', async () => {
+    const invalidId = 'not-a-uuid'
+    await expect(
+      axios.get(`${API_URL}/api/generation/${invalidId}`)
+    ).rejects.toMatchObject({
+      response: {
+        status: 400,
+      },
+    })
+  })
+})

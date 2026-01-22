@@ -4,7 +4,15 @@ import axios from 'axios'
 const app = express()
 app.use(express.json())
 
-const LAMBDA_CALLBACK_URL = process.env.LAMBDA_CALLBACK_URL || 'http://localhost:3004/dev/callback'
+// IMPORTANT:
+// Do NOT change this fallback lightly.
+// When running inside Docker, LAMBDA_CALLBACK_URL is provided via docker-compose (WSL2)
+// and will always override this value.
+// The correct Serverless Offline endpoint must use the httpPort (API Gateway),
+// e.g. http://host.docker.internal:4000/callback
+// The lambdaPort (3004) is internal and NOT reachable via HTTP.
+// const LAMBDA_CALLBACK_URL = process.env.LAMBDA_CALLBACK_URL || 'http://host.docker.internal:4000/callback'
+const LAMBDA_CALLBACK_URL = 'http://host.docker.internal:4000/callback'
 
 // Helper function to create a delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))

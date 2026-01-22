@@ -6,6 +6,7 @@
     "setup": "./scripts/setup.sh",
     "start:mock-ai": "ts-node services/mock-ai-server/src/index.ts",
     "start:nest": "docker-compose up nestjs",
+    "test:e2e": "npx jest",
     "deploy:lambda": "cd services/lambdas && npx serverless offline start --host 0.0.0.0 --httpPort 4000",
     "install:all": "npm install && cd services/lambdas && npm install && cd ../nestjs && npm install && cd ../mock-ai-server && npm install",
     "prisma:migrate": "npx prisma migrate dev --name init",
