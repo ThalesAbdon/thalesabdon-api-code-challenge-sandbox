@@ -4,6 +4,8 @@ import axios from 'axios'
 
 jest.mock('axios')
 
+jest.spyOn(global, 'setTimeout')
+
 describe('AiService (unit)', () => {
   let service: AiService
 
@@ -19,7 +21,6 @@ describe('AiService (unit)', () => {
   beforeEach(() => {
     service = new AiService()
 
-    // 🔥 sobrescreve o Prisma real pelo mock
     ;(service as any).prisma = prismaMock
   })
 
@@ -43,6 +44,8 @@ describe('AiService (unit)', () => {
       expect(result).toEqual({ generationId: 'gen-123' })
     })
 
+    
+
     it('should handle background failure and update generation', async () => {
       prismaMock.generations.create.mockResolvedValue({
         generationId: 'gen-fail',
@@ -56,7 +59,6 @@ describe('AiService (unit)', () => {
 
       await service.generateImage('test')
 
-      // aguarda o Promise.resolve().then()
       await Promise.resolve()
 
       expect(prismaMock.generations.update).toHaveBeenCalledWith({
@@ -86,13 +88,17 @@ describe('AiService (unit)', () => {
     })
 
     it('should update generation status to FAILED on error', async () => {
+      jest
+        .spyOn<any, any>(service as any, 'delay')
+        .mockResolvedValue(undefined)
+
       ;(axios.post as jest.Mock).mockRejectedValue(new Error('Network error'))
 
       await expect(
         (service as any).processImageGeneration('prompt', 'gen-err'),
       ).rejects.toThrow()
 
-      expect(prismaMock.generations.update).toHaveBeenCalledWith({
+      expect(prismaMock.generations.update).toHaveBeenLastCalledWith({
         where: { generationId: 'gen-err' },
         data: {
           updatedAt: expect.any(Date),
