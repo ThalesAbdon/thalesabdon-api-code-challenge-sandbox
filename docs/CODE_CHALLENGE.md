@@ -269,7 +269,7 @@ Notify users when their image generation requests are completed, focusing on FE 
 ---
 
 ## Architecture
-<img width="8191" height="2899" alt="Mermaid Chart - Create complex, visual diagrams with text -2026-01-22-160808" src="https://github.com/user-attachments/assets/64ff2dab-d4f9-4be8-a11f-53deb21eef97" />
+<img width="8191" height="2781" alt="Mermaid Chart - Create complex, visual diagrams with text -2026-01-22-163219" src="https://github.com/user-attachments/assets/047b346d-c1ce-4da9-b21d-5c61769eb9bd" />
 
 sequenceDiagram
     autonumber
