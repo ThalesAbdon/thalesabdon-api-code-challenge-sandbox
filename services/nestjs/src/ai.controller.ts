@@ -2,6 +2,7 @@ import { Controller, Post, Body, Get, Param } from '@nestjs/common'
 import { AiService } from './ai.service'
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { AiRequestDto } from './ai.dto'
+import { ParseUUIDPipe } from '@nestjs/common'
 
 @ApiTags('images')
 @Controller('api/generation')
@@ -79,8 +80,12 @@ export class AiController {
     status: 404,
     description: 'Generation not found',
   })
+  @ApiResponse({ 
+    status: 400, 
+    description: 'Invalid generationId format (not a UUID v4)' 
+  })
   async getGeneration(
-    @Param('generationId') generationId: string,
+    @Param('generationId', new ParseUUIDPipe({ version: '4' })) generationId: string,
   ) {
     return this.aiService.getGenerationById(generationId)
   }
