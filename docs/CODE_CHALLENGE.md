@@ -269,6 +269,34 @@ Notify users when their image generation requests are completed, focusing on FE 
 ---
 
 ## Architecture
+<img width="8191" height="2899" alt="Mermaid Chart - Create complex, visual diagrams with text -2026-01-22-160808" src="https://github.com/user-attachments/assets/64ff2dab-d4f9-4be8-a11f-53deb21eef97" />
+
+sequenceDiagram
+    autonumber
+    actor User as Frontend
+    participant API as NestJS API
+    participant DB as Database (PostgreSQL/Prisma)
+    participant Lambda as Lambda Callback
+    participant PubSub as Redis/AWS SNS
+
+    Note over User, Lambda: === Conexão Inicial ===
+    User->>API: Connect WebSocket (JWT)
+    API->>API: Register active connection (UserID -> SocketID)
+    API->>PubSub: SUBSCRIBE channel "notifications:user:{id}"
+    API-->>User: Connection Established (Handshake OK)
+
+    Note over Lambda, User: === Evento de Conclusão ===
+    Lambda->>DB: UPDATE generation SET status='COMPLETE', url='...' WHERE id='gen_999'
+    Lambda->>PubSub: PUBLISH "notifications:user:{id}" {event: "generation_complete", ...}
+
+    Note over API, User: === Entrega e Ack ===
+    PubSub-->>API: Notification received
+    API->>User: PUSH MESSAGE {event: "generation_complete", data: {...}}
+    User->>User: Display notification "Image ready!"
+    User->>API: SEND ACK {generationId: "gen_999", status: "received"}
+
+    Note right of API: Retry if no ACK, store pending messages for offline users
+
 - Frontend: subscribes to real-time updates.
 - API (NestJS): manages connections, status updates.
 - Database (PostgreSQL/Prisma): tracks generation status (PENDING, COMPLETE, FAILED).
