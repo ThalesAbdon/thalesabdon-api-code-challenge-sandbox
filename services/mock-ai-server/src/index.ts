@@ -23,9 +23,12 @@ app.post('/generate', async (req, res) => {
 
     console.log('Processing generation for prompt: ', prompt)
 
-    // Add a 8-seconds delay before calling the callback
-    await delay(8000) // FIXME: Change to be random between 4-8 seconds
-
+    const randomBetween = (min: number, max: number) =>
+    Math.floor(Math.random() * (max - min + 1)) + min
+    
+    // Change to be random between 4-8 seconds
+    await delay(randomBetween(4000, 8000))
+    
     const images = [
      `https://fake-ai-images.com/${generationId}/image-1.png`,
      `https://fake-ai-images.com/${generationId}/image-2.png`,
