@@ -98,11 +98,14 @@ echo "✅ NestJS service is ready!"
 
 # Generate Prisma clients
 echo "🔄 Generating Prisma client for lambdas ..."
-(cd services/lambdas && npm run prisma:copy-from-shared &&  npm run prisma:generate)
+(cd services/lambdas &&  npm run prisma:generate)
 
 # Clean up any existing serverless build artifacts
 echo "🧹 Cleaning up serverless build artifacts..."
 rm -rf services/lambdas/.build
+
+# Clean up prisma schema on lambda
+rm -rf services/lambdas/prisma
 
 # Deploy serverless lambdas
 echo "☁️  Deploying serverless lambdas..."
