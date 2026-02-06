@@ -212,12 +212,29 @@ This section implements **Task 2**, adding a **retry mechanism** with **exponent
 - Ensures API and background processing work seamlessly together
 
 ### Run unit tests:
-- nestjs: npm test
-- mock-ai-server: npm test
+#### Each service has its own unit tests and must be executed from its respective folder.
+
+#### NestJS API
+```bash
+cd services/nestjs
+npm test
+```
+
+#### Mock-ai-server
+```bash
+cd services/nestjs
+npm test
+```
 
 ### Run E2E tests:
-- in root: npm run test:e2e
 
+#### E2E tests must be executed from the project root.
+
+⚠️ Important: Make sure the application is running before executing E2E tests.
+
+```bash
+npm run test:e2e
+```
 ---
 
 ## ⚠️ Error Handling & Edge Cases
