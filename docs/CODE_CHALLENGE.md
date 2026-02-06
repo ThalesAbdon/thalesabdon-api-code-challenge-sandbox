@@ -1,7 +1,18 @@
+
+
 # API Engineer Candidate Tasks
 
 This document outlines the tasks completed as part of the API engineering candidate evaluation process.  
 All tasks were implemented with a focus on **quality, resilience, reliability, and clear communication**.  
+
+- [Task 1 – Generation Retrieval](#task-1--generation-retrieval-endpoint--generation-status-support)
+- [Task 2 – Retry Mechanism](#task-2--retry-mechanism-for-failed-ai-server-requests)
+- [Example – How to Download and Run](#example-of-how-to-download-and-run-the-project)
+- [Task 3 – Real-time Notification System](#task-3-real-time-user-notification-system)
+- [Architecture](#architecture)
+- [Testing Strategy](#-testing-strategy)
+- [Evidence](#evidence-tests--api-responses)
+
 
 ---
 
@@ -277,6 +288,14 @@ npm run test:e2e
 
 ---
 
+## Example of How to Download and Run the Project
+
+- Clone the repository
+- Execute on root: npm run setup
+- Enjoy
+
+https://github.com/user-attachments/assets/016c81c9-4ef3-4cab-bcec-1eff6072d97e
+
 # Task 3: Real-time User Notification System
 
 ---
@@ -363,3 +382,4 @@ sequenceDiagram
 - Delivery Guarantees: Implement at-least-once delivery using a persistent queue (Redis Streams or SQS) to ensure critical notifications are never lost, even if Lambda/API crashes.
   Messages can be idempotent, using generationId as the key to avoid duplicates on the frontend.  
 - Token Rotation: Rotating JWTs or WebSocket tokens periodically to reduce risk in case a token is compromised.
+
