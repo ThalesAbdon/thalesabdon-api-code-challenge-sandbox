@@ -66,15 +66,17 @@ until docker-compose ps postgres | grep "healthy"; do
     sleep 2
 done
 
+#Remove clean up to keep migrations
 # Clean up and reset database migrations
-echo "🧹 Cleaning up existing migrations..."
-rm -rf prisma/migrations
-rm -rf prisma/migration_lock.toml
+# echo "🧹 Cleaning up existing migrations..."
+# rm -rf prisma/migrations
+# rm -rf prisma/migration_lock.toml
 
 # Reset database and run migrations
 echo "🔄 Resetting database and running migrations..."
-npx prisma migrate reset --force
-npx prisma migrate dev --name init
+# npx prisma migrate reset --force
+# npx prisma migrate dev --name init
+npx prisma migrate deploy
 
 # Start mock AI server and NestJS service
 echo "🤖 Starting mock AI server and NestJS service..."

@@ -1,27 +1,28 @@
+const prismaMock = {
+  generations: {
+    create: jest.fn(),
+    update: jest.fn(),
+    findUnique: jest.fn(),
+  },
+  $disconnect: jest.fn(),
+}
+
+// IMPORTANT: mock PrismaClient BEFORE importing the service
+jest.mock('@prisma/client', () => ({
+  PrismaClient: jest.fn(() => prismaMock),
+}))
+
 import { AiService } from '../ai.service'
 import { NotFoundException } from '@nestjs/common'
 import axios from 'axios'
 
 jest.mock('axios')
 
-jest.spyOn(global, 'setTimeout')
-
 describe('AiService (unit)', () => {
   let service: AiService
 
-  const prismaMock = {
-    generations: {
-      create: jest.fn(),
-      update: jest.fn(),
-      findUnique: jest.fn(),
-    },
-    $disconnect: jest.fn(),
-  }
-
   beforeEach(() => {
     service = new AiService()
-
-    ;(service as any).prisma = prismaMock
   })
 
   afterEach(() => {
@@ -36,15 +37,15 @@ describe('AiService (unit)', () => {
         status: 'PENDING',
       })
 
-      jest.spyOn<any, any>(service as any, 'processImageGeneration').mockResolvedValue(undefined)
+      jest
+        .spyOn<any, any>(service as any, 'processImageGeneration')
+        .mockResolvedValue(undefined)
 
       const result = await service.generateImage('test')
 
       expect(prismaMock.generations.create).toHaveBeenCalled()
       expect(result).toEqual({ generationId: 'gen-123' })
     })
-
-    
 
     it('should handle background failure and update generation', async () => {
       prismaMock.generations.create.mockResolvedValue({
@@ -88,9 +89,7 @@ describe('AiService (unit)', () => {
     })
 
     it('should update generation status to FAILED on error', async () => {
-      jest
-        .spyOn<any, any>(service as any, 'delay')
-        .mockResolvedValue(undefined)
+      jest.spyOn<any, any>(service as any, 'delay').mockResolvedValue(undefined)
 
       ;(axios.post as jest.Mock).mockRejectedValue(new Error('Network error'))
 

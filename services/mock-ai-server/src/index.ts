@@ -11,8 +11,8 @@ app.use(express.json())
 // The correct Serverless Offline endpoint must use the httpPort (API Gateway),
 // e.g. http://host.docker.internal:4000/callback
 // The lambdaPort (3004) is internal and NOT reachable via HTTP.
-// const LAMBDA_CALLBACK_URL = process.env.LAMBDA_CALLBACK_URL || 'http://host.docker.internal:4000/callback'
-const LAMBDA_CALLBACK_URL = 'http://host.docker.internal:4000/callback'
+// If uhttp://host.docker.internal:3004/dev/callback
+const LAMBDA_CALLBACK_URL = process.env.LAMBDA_CALLBACK_URL || 'http://host.docker.internal:4000/callback'
 
 // Helper function to create a delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))

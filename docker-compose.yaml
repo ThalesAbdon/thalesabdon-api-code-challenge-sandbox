@@ -18,7 +18,7 @@ services:
     ports:
       - '3001:3001'
     environment:
-      - LAMBDA_CALLBACK_URL=http://host.docker.internal:3004/dev/callback
+      - LAMBDA_CALLBACK_URL=http://host.docker.internal:4000/callback
     extra_hosts:
       - 'host.docker.internal:host-gateway'
 
